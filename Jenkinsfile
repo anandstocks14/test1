@@ -3,7 +3,7 @@ pipeline{
 	stages{
 		stage ('Build'){
 			steps{
-				echo " BUild Stage"
+				echo " I am modifying the file to checck trigger"
 			}
 		}
 	}
