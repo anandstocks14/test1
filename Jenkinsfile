@@ -8,7 +8,7 @@ pipeline{
         }
         stage ('build'){
             steps{
-                       sh 'sudo mvn clean install'
+                       sh 'mvn clean install'
                 }
         }
         stage ('deploy'){
