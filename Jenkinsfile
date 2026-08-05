@@ -1,31 +1,34 @@
-pipeline{
-    agent any
-    tools {
-        jdk 'JDK17'
-    }
-    stages{
-        stage ('Trial'){
-            steps{
-                echo " trial run"
+pipeline {
+    agent none
+
+    stages {
+
+        stage('Checkout') {
+            agent { label 'built-in' }   // or 'master'
+            steps {
+                git branch: 'main',
+                    url: 'https://github.com/anandstocks14/project1.git'
             }
         }
-        stage ('build'){
-            steps{
-                dir('sample-app'){
-                   sh 'mvn clean install'
+
+        stage('Build') {
+            agent { label 'built-in' }   // or 'master'
+            steps {
+                dir('sample-app') {
+                    sh 'mvn clean package'
+                    stash name: 'war', includes: 'target/sample.war'
                 }
             }
         }
-        stage ('deploy'){
-            steps{
-                dir ('sample-app'){
-                    sh '''
-                    sudo cp target/*.war /var/lib/tomcat10/webapps/
-                    sudo systemctl restart tomcat10
-                    '''
-                }              
-            }
 
+        stage('Deploy') {
+            agent { label 'my-worker' }
+            steps {
+                unstash 'war'
+                sh '''
+                sudo cp target/sample.war /opt/tomcat/webapps/sample.war
+                '''
+            }
         }
     }
 }
